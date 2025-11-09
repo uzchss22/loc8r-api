@@ -2,14 +2,14 @@ var request = require('request');
 const apiOptions = {
   server: 'http://localhost:3000'
 };
-if (process.env.NODE_ENV === 'producting') {
-  apiOptions.server = 'https://yourapi.com';
+if (process.env.NODE_ENV === 'production') {
+  apiOptions.server = 'https://loc8r-api-zlk3.onrender.com';
 }
 
 const requestOptions = {
   url: `${apiOptions.server}`,
   method: 'GET',
-  json: {},
+  json: true,  // 빈 객체 대신 true로 변경
   qs: {
     offset: 20
   }
@@ -17,7 +17,8 @@ const requestOptions = {
 request(requestOptions, (err, response, body) => {
   if (err) {
     console.log(err);
-  } if (response.statusCode === 200) {
+  } 
+  if (response.statusCode === 200) {
     console.log(body);
   } else {
     console.log(response.statusCode);
@@ -29,7 +30,7 @@ const homelist = (req, res) => {
   const requestOptions = {
     url: `${apiOptions.server}${path}`,
     method: 'GET',
-    json: {},
+    json: true, // 빈 객체 대신 true
     qs: {
       lng: 127.263904,
       lat: 37.012307,
@@ -40,16 +41,17 @@ const homelist = (req, res) => {
     requestOptions,
     (err, { statusCode }, body) => {
       let data = [];
-      if (statusCode === 200 && body.length) {
+      if (statusCode === 200 && Array.isArray(body)) {  // 배열 여부 체크 추가
         data = body.map((item) => {
           item.distance = formatDistance(item.distance);
           return item;
         });
       }
-      renderHomepage(req, res, body);
+      renderHomepage(req, res, data);  // 변환한 data 전달
     }
   );
 };
+
 
 
 const formatDistance = (distance) => {
